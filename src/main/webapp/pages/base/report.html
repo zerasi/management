@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>报表</title>
+			<!-- 导入jquery核心类库 -->
+		<script type="text/javascript" src="../../js/jquery.min.js"></script> 
+		<!-- 导入easyui类库 -->
+		<link rel="stylesheet" type="text/css" href="../../easyui/themes/default/easyui.css">
+		<link rel="stylesheet" type="text/css" href="../../easyui/themes/icon.css">
+    	<link rel="stylesheet" type="text/css" href="../../easyui/themes/color.css">
+		<link rel="stylesheet" type="text/css" href="../../easyui/themes/xyy.css">
+		
+		<script type="text/javascript" src="../../easyui/jquery.easyui.min.js"></script>
+		<script type="text/javascript" src="../../easyui/easyloader.js"></script>
+		
+		<script type="text/javascript" src="../../js/jquery.portal.js"></script>
+		<script type="text/javascript" src="../../js/jquery.cookie.js"></script>
+		<script type="text/javascript" src="../../js/jquery.serializejson.min.js"></script>
+		<script type="text/javascript" src="../../js/echarts-all.js"></script>
+		<script type="text/javascript">
+			$(function(){
+				/* returnMap.put("titleList", titleList);
+				returnMap.put("contentList", contentList); */
+				$("#save").click(function(){
+					if($("#formId").form('validate')){
+						var dataform=$("#formId").serializeJSON();
+						JSON.stringify(dataform)
+						$.post("../../consuRecord/report.do",dataform,function(data){
+							var dom = document.getElementById("container");
+							var myChart = echarts.init(dom);
+							var app = {};
+							option = null;
+							option = {
+							    xAxis: {
+							        type: 'category',
+							        data: data.titleList
+							    },
+							    yAxis: {
+							        type: 'value'
+							    },
+							    series: [{
+							        data: data.contentList,
+							        type: 'line'
+							    }]
+							};
+							;
+							if (option && typeof option === "object") {
+							    myChart.setOption(option, true);
+							}
+						})
+					}
+				})
+				
+			})
+		</script>
+	</head>
+
+	<body class="easyui-layout">
+		<div data-options="region:'center'">
+			<form action="formId" id="formId" style="position: relative;z-index: 199">
+			<input type="text" name="date_start" id="birthday" class="easyui-datebox" required="true" />
+			<input type="text" name="date_end" id="birthday" class="easyui-datebox" required="true" />
+			<select name="date_type" class="easyui-combobox" style="width: 150px;">
+                 <option value="1">天</option>
+                 <option value="2">月</option>
+                 <option value="3">年</option>
+             </select>
+             <a href="#" id="save" class="easyui-linkbutton" data-options="iconCls:'icon-save'" >图表</a>
+             </form>
+		</div>
+		<div id="container" style="width: 1150px; height: 450px;"></div>
+	</body>
+
+</html>

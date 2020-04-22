@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>分类</title>
+			<!-- 导入jquery核心类库 -->
+		<script type="text/javascript" src="../../js/jquery.min.js"></script> 
+		<!-- 导入easyui类库 -->
+		<link rel="stylesheet" type="text/css" href="../../easyui/themes/default/easyui.css">
+		<link rel="stylesheet" type="text/css" href="../../easyui/themes/icon.css">
+    	<link rel="stylesheet" type="text/css" href="../../easyui/themes/color.css">
+		<link rel="stylesheet" type="text/css" href="../../easyui/themes/xyy.css">
+		
+		<script type="text/javascript" src="../../easyui/jquery.easyui.min.js"></script>
+		<script type="text/javascript" src="../../easyui/easyloader.js"></script>
+		
+		<script type="text/javascript" src="../../js/jquery.portal.js"></script>
+		<script type="text/javascript" src="../../js/jquery.cookie.js"></script>
+		<script type="text/javascript" src="../../js/jquery.serializejson.min.js"></script>
+		<script type="text/javascript">
+		$(function(){
+			$("#grid").treegrid({
+				idField:'id',    
+			    treeField:'name',  
+				toolbar : [
+					{
+						id : 'add',
+						text : '添加分类',
+						iconCls : 'icon-add',
+						handler : function(){
+							location.href='category_add.html';
+						}
+					} ,
+					{
+						id : 'edit',
+						text : '修改分类',
+						iconCls : 'icon-edit',
+						handler : doedit
+					} ,
+					{
+						id : 'delete',
+						text : '删除分类',
+						iconCls : 'icon-cancel',
+						handler : function(){
+							var rowDatas = $("#grid").datagrid("getSelections");
+							$.messager.confirm("提示","是否要删除选择的数据?(会同时删除子分类)",function(r){
+								if(r){
+									$.get("../../category/delete.do",{id:rowDatas[0].id},function(data){
+										if(data.success){
+											$.messager.alert("提示", data.message,"info",function () {
+												$('#grid').treegrid('reload');
+											});
+										}else{
+											$.messager.alert("提示",data.message);
+										}
+									})
+								}
+							})
+						}
+					}  
+				],
+				url : '../../category/findAllByUid.do',
+				columns : [[
+				  {
+					  field : 'id',
+					  title : '编号',
+					  width : 50
+				  },
+				  {
+					  field : 'name',
+					  title : '名称',
+					  width : 200
+				  },  
+				  {
+					  field : 'des',
+					  title : '详细',
+					  width : 200
+				  }]]
+			});
+		});
+		
+		function doedit(){
+			var rowDatas = $("#grid").datagrid("getSelections");
+			  if(rowDatas.length==1){
+				  	var row=rowDatas[0];
+				  	location.href="category_edit.html?id="+row.id;
+			  }else{
+				  $.messager.alert("提示","请选择一条数据");
+			  }
+		}
+		</script>
+	</head>
+
+	<body class="easyui-layout">
+		<div data-options="region:'center'">
+			<table id="grid"></table>
+		</div>
+	</body>
+
+</html>

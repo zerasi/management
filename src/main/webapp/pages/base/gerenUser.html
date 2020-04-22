@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>个人信息</title>
+		<script type="text/javascript" src="../../js/jquery.min.js"></script> 
+		<!-- 导入easyui类库 -->
+		<link rel="stylesheet" type="text/css" href="../../easyui/themes/default/easyui.css">
+		<link rel="stylesheet" type="text/css" href="../../easyui/themes/icon.css">
+    	<link rel="stylesheet" type="text/css" href="../../easyui/themes/color.css">
+		<link rel="stylesheet" type="text/css" href="../../easyui/themes/xyy.css">
+		
+		<script type="text/javascript" src="../../easyui/jquery.easyui.min.js"></script>
+		<script type="text/javascript" src="../../easyui/easyloader.js"></script>
+		
+		<script type="text/javascript" src="../../js/jquery.portal.js"></script>
+		<script type="text/javascript" src="../../js/jquery.cookie.js"></script>
+		<script type="text/javascript" src="../../js/jquery.serializejson.min.js"></script>
+		<script type="text/javascript">
+			$(function(){
+				$.post("../../user/getSessionUser.do",function(data){
+					$("#formdata").form("load",data);	
+				}) 
+				$("#save").click(function(){
+					if($("#formdata").form('validate')){
+						var dataform=$("#formdata").serializeJSON();
+						$.post("../../user/updategeren.do",dataform,function(data){
+							$.messager.alert("提示",data.message);
+						})
+					}
+					})
+			});
+		</script>
+			
+	</head>
+
+	<body class="easyui-layout" >
+		<div region="north" style="height:31px;overflow:hidden;" split="false" border="false">
+			<div class="datagrid-toolbar">
+				<a id="save" icon="icon-save" href="#" class="easyui-linkbutton" plain="true">保存</a>
+			</div>
+		</div>
+		<div region="center" style="overflow:auto;padding:5px;" border="false">
+			<form id="formdata" method="post">
+			<input type="hidden" name="id">
+				<table class="table-edit" width="95%" align="center">
+					<tr class="title">
+						<td colspan="4">基本信息</td>
+						<input type="hidden" name="id" />
+					</tr>
+					<tr>
+						<td>用户:</td>
+						<td>
+							<input type="text" name="username" id="id" class="easyui-validatebox" required="required" />
+						</td>
+						<td>密码:</td>
+						<td>
+							<input type="password" name="password" id="password" class="easyui-validatebox" required="required"  />
+						</td>
+					</tr>
+					<tr>
+					<td>性别</td>
+							<td>
+									<select id="cc" class="easyui-combobox" name="sex" style="width: 100px;">   
+									    <option value="男">男</option>   
+									    <option value="女">女</option>   
+									</select>  
+							</td>
+						<td>真实姓名:</td>
+						<td colspan="3">
+							<input type="text" name="real_name" id="real_name" class="easyui-validatebox"  />
+						</td>
+					</tr>
+					<tr>
+							<td>电话</td>
+							<td>
+								<input type="text" name="acc_nbr" id="real_name" class="easyui-validatebox"  />
+							</td>
+							<td>邮箱</td>
+							<td>
+								<input type="text" name="email" id="email" class="easyui-validatebox"  />
+							</td>
+						
+					</tr>
+					
+				</table>
+			</form>
+		</div>
+	</body>
+
+</html>

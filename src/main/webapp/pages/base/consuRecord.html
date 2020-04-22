@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>消费信息</title>
+			<!-- 导入jquery核心类库 -->
+		<script type="text/javascript" src="../../js/jquery.min.js"></script> 
+		<!-- 导入easyui类库 -->
+		<link rel="stylesheet" type="text/css" href="../../easyui/themes/default/easyui.css">
+		<link rel="stylesheet" type="text/css" href="../../easyui/themes/icon.css">
+    	<link rel="stylesheet" type="text/css" href="../../easyui/themes/color.css">
+		<link rel="stylesheet" type="text/css" href="../../easyui/themes/xyy.css">
+		
+		<script type="text/javascript" src="../../easyui/jquery.easyui.min.js"></script>
+		<script type="text/javascript" src="../../easyui/easyloader.js"></script>
+		
+		<script type="text/javascript" src="../../js/jquery.portal.js"></script>
+		<script type="text/javascript" src="../../js/jquery.cookie.js"></script>
+		<script type="text/javascript" src="../../js/jquery.serializejson.min.js"></script>
+		<script type="text/javascript">
+			img = null;
+			$(function(){
+				// 先将body隐藏，再显示，不会出现页面刷新效果
+				$("body").css({visibility:"visible"});
+				
+				$('#grid').datagrid( {
+					iconCls : 'icon-forward',
+					fit : true,
+					border : false,
+					rownumbers : true,
+					striped : true,
+					toolbar : toolbar,
+					pageList: [10,20],
+					pagination : true,
+					url : "../../consuRecord/findPage.do",
+					idField : 'id',
+					columns : columns
+				});
+				$("#save").click(function(){
+					if($("#formdata").form('validate')){
+						var dataform=$("#formdata").serializeJSON();
+						$.post("../../consuRecord/add.do",dataform,function(data){
+							if(data.success){
+								$('#grid').datagrid("reload");
+								$('#standardWindow').form('clear');
+							}
+							$("#standardWindow").window("close");
+							$.messager.alert("提示",data.message);
+						})
+					}
+					})
+					
+					
+					  $("#img").change(function() {  
+			                var file = this.files[0];  
+			                var reader = new FileReader();  
+			                reader.readAsDataURL(file);//调用自带方法进行转换  
+			                reader.onload = function(e) {  
+			                	img = e.target.result;
+			                };    
+			        });
+			});
+			
+			function doAdd(){
+					img = null;
+					$("#formdata").form("reset");
+					$("#hiddenId").val(null);
+					$("#standardWindow").window("open");
+			}
+			//修改
+			function doedit(){
+				
+				img = null;
+				var rowDatas = $("#grid").datagrid("getSelections");
+				  if(rowDatas.length==1){
+					  $("#standardWindow").window("open");
+					  	var row=rowDatas[0];
+						$("#formdata").form("load",row);
+						$("#categoryId").combobox('setValue',row.category.id);
+						$("#standardWindow").window("open");
+				  }else{
+					  $.messager.alert("提示","请选择一条数据");
+				  }
+			}
+			//删除
+		  	function dodelete(){
+		  		var rowDatas = $("#grid").datagrid("getSelections");
+				  	if(rowDatas.length==0){
+						$.messager.alert("提示","请选项需要删除的数据");
+					}else{
+						$.messager.confirm("提示","是否要删除选择的数据?",function(r){
+							if(r){
+								//获取选中数据的id
+								var ids  = new Array();
+								for (var i = 0; i < rowDatas.length; i++) {
+									ids.push(rowDatas[i].id);
+								}
+								ids = ids.join(",");
+								$.post("../../consuRecord/delete.do",{"ids":ids},function(data){
+									if(data.success){
+										
+										$("#grid").datagrid("reload");
+										$("#grid").datagrid("clearChecked");
+									}
+									$.messager.alert("提示",data.message);
+								})
+							}
+						})
+					}
+		  	}	
+			
+			//工具栏
+			var toolbar = [ {
+				id : 'button-add',
+				text : '增加',
+				iconCls : 'icon-add',
+				handler :doAdd
+			}, {
+				id : 'button-edit',
+				text : '修改',
+				iconCls : 'icon-edit',
+				handler :doedit
+			},{
+				id : 'button-delete',
+				text : '删除',
+				iconCls : 'icon-cancel',
+				handler :dodelete
+			}];
+			// 定义列
+			var columns = [ [ {
+				field : 'id',
+				checkbox : true
+			},{
+				field : 'consu_name',
+				title : '消费用途',
+				width : 150,
+				align : 'center'
+			},{
+				field : 'consu_des',
+				title : '消费详细',
+				width : 300,
+				align : 'center'
+			} ,{
+				field : 'consu_ads',
+				title : '消费地址',
+				width : 200,
+				align : 'center'
+			},{
+				field : 'consu_time',
+				title : '消费时间',
+				width : 150,
+				align : 'center'
+			},{
+				field : 'consu_money',
+				title : '消费金额',
+				width : 150,
+				align : 'center'
+			},{
+				field : 'consu_time',
+				title : '消费时间',
+				width : 150,
+				align : 'center'
+			},{
+				field : 'consuCateDisp',
+				title : '消费分类',
+				width : 200,
+				align : 'center'
+			},{
+				field : 'consu_way',
+				title : '付款方式',
+				width : 100,
+				align : 'center',formatter:function(data,row, index){
+					if(row.consuWay!=null){
+						return row.consuWay.consu_way;
+					}
+					return "";
+				}
+			},{
+				field : 'comsu_rep',
+				title : '是否打印发票',
+				width : 120,
+				align : 'center'
+			}] ];
+			/*  ,
+				{
+					field : 'c.id',
+					title : '所属分类',consuWay
+					width : 120,
+					align : 'center',formatter:function(data,row, index){
+						if(row.category!=null){
+							return row.category.name;
+						}
+						return "";
+					}
+				} */
+				function image2Base64(img) {
+					var reader = new FileReader();
+					reader.readAsDataURL(img);
+				}
+
+		</script>
+	</head>
+
+	<body class="easyui-layout" style="visibility:hidden;">
+		<div region="center" border="false">
+			<table id="grid"></table>
+		</div>
+		
+		<div class="easyui-window" title="消费添加或者修改" id="standardWindow" collapsible="false" minimizable="false" maximizable="false" modal="true" closed="true" style="width:700px;top:10px;left:200px">
+			<div region="north" style="height:31px;overflow:hidden;" split="false" border="false">
+				<div class="datagrid-toolbar">
+					<a id="save" icon="icon-save" href="#" class="easyui-linkbutton" plain="true">保存</a>
+				</div>
+			</div>
+
+			<div region="center" style="overflow:auto;padding:5px;" border="false">
+				<form id='formdata'  method="post" enctype="multipart/form-data" target="myiframe">
+					<table class="table-edit" width="80%" align="center">
+						<tr class="title">
+							<td colspan="2">
+								<!--提供隐藏域 装载id -->
+								<input type="hidden" name="id" id="hiddenId"/>
+							</td>
+						</tr>
+						<tr>
+							<td>消费用途</td>
+							<td>
+								<input type="text" name="consu_name" 
+									class="easyui-validatebox"  required="required"/>
+							</td>
+						</tr>
+						<tr>
+							<td>消费详细</td>
+							<td>
+								<input type="text" name="consu_des" 
+									class="easyui-validatebox"  required="required"/>
+							</td>
+						</tr>
+						<tr>
+							<td>消费地址</td>
+							<td>
+								<input type="text" name="consu_ads" 
+									class="easyui-validatebox"  required="required"/>
+							</td>
+						</tr>
+						<tr>
+							<td>消费时间</td>
+							<td>
+								<input type="text" name="consu_time" 
+									class="easyui-datetimebox"  required="required"/>
+							</td>
+						</tr>
+						<tr>
+							<td>消费金额</td>
+							<td>
+								<input type="text" name="consu_money" 
+								class="easyui-numberbox" required="required" data-options="min:0,precision:2"/>
+							</td>
+						</tr>
+						<tr>
+							<td>消费分类</td>
+							<td>
+								<input id="combotree_id" name="consu_cate" class="easyui-combotree"
+								data-options="valueField:'id',textField:'name',
+								url:'../../category/findAllByUid.do'" />
+							</td>
+						</tr>
+						<tr>
+							<td>付款方式</td>
+							<td>
+								<input id="cc" class="easyui-combobox" name="consu_way"   
+   									 data-options="valueField:'id',textField:'consu_way',url:'../../category/findAllConsuWay.do'" />  
+							</td>
+						</tr>
+						<tr>
+							<td>是否打印发票</td>
+							<td>
+								<select class="easyui-combobox" name="comsu_rep" style="width: 100px;" data-options="required:true" >   
+								    <option value="否">否</option>   
+								    <option value="是">是</option>   
+								</select>  
+							</td>
+						</tr>
+						
+						
+					</table>
+				</form>
+			</div>
+		</div>
+	</body>
+
+</html>

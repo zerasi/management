@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8">
+		<title>分类添加</title>
+		<script type="text/javascript" src="../../js/jquery.min.js"></script> 
+		<!-- 导入easyui类库 -->
+		<link rel="stylesheet" type="text/css" href="../../easyui/themes/default/easyui.css">
+		<link rel="stylesheet" type="text/css" href="../../easyui/themes/icon.css">
+    	<link rel="stylesheet" type="text/css" href="../../easyui/themes/color.css">
+		<link rel="stylesheet" type="text/css" href="../../easyui/themes/xyy.css">
+		
+		<script type="text/javascript" src="../../easyui/jquery.easyui.min.js"></script>
+		<script type="text/javascript" src="../../easyui/easyloader.js"></script>
+		
+		<script type="text/javascript" src="../../js/jquery.portal.js"></script>
+		<script type="text/javascript" src="../../js/jquery.cookie.js"></script>
+		<script type="text/javascript" src="../../js/jquery.serializejson.min.js"></script>
+		<script type="text/javascript">
+			$(function(){
+				var cate_id = location.search.split("=")[1];
+				
+				$.get("../../category/findOne.do",{id:cate_id},function(data){
+					$("#functionForm").form("load",data);
+				})
+				
+				// 点击保存
+				$('#save').click(function(){
+					if($("#functionForm").form("validate")){
+						var formData = $("#functionForm").serializeJSON();
+						$.ajax({
+							type: 'POST',
+							url: '../../category/edit.do',
+							contentType: 'application/json;charset=utf-8',
+							data: JSON.stringify(formData),
+							success: function(data) {
+								if (data.success) {
+									location.href = "category.html";
+								} else {
+									$.messager.alert("提示", data.message);
+								}
+							}
+						})
+						
+					}
+				});
+				$("#undo").click(function(){
+					location.href="category.html";
+				});
+			});
+		</script>
+	</head>
+
+	<body class="easyui-layout">
+		<div data-options="region:'north'">
+			<div class="datagrid-toolbar">
+				<a id="save" icon="icon-save" href="#" class="easyui-linkbutton" plain="true">保存</a>
+				<a id="undo" icon="icon-undo" href="#" class="easyui-linkbutton" plain="true">返回</a>
+			</div>
+		</div>
+		<div data-options="region:'center'">
+			<form id="functionForm" method="post">
+				<table class="table-edit" width="80%" align="center">
+					<tr class="title">
+						<input type="hidden" name="id"/>
+						<td colspan="2">分类项信息</td>
+					</tr>
+					<tr>
+						<td>名称</td>
+						<td>
+							<input type="text" name="name" class="easyui-validatebox" data-options="required:true" />
+						</td>
+					</tr>
+					<tr>
+						<td>详细</td>
+						<td>
+							<input type="text" name="des" class="easyui-validatebox" data-options="required:true" />
+						</td>
+					</tr>
+					<tr>
+						<td>父分类</td>
+						<td>
+							<input id="combotree_id" name="parentId" class="easyui-combotree"
+							data-options="valueField:'id',textField:'name',
+							url:'../../category/findAllByUid.do'" />
+						</td>
+					</tr>
+					<tr>
+						<td>父分类</td>
+						<td>
+							<input class="easyui-combobox" name="consu_way"   
+   									 data-options="valueField:'id',textField:'name',url:'../../category/findAllConsuWay.do'" />  
+						</td>
+					</tr>
+				</table>
+			</form>
+		</div>
+	</body>
+
+</html>
